@@ -8,7 +8,7 @@ const methodOverride = require("method-override");
 const { ppid } = require("process");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js")
-const {listingSchema} = require("./schema1.js");
+const { listingSchema } = require("./schema1.js");
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
 async function main() {
@@ -40,12 +40,13 @@ app.get("/", (req, res) => {
     res.send("Hi I am root");
 });
 
-const validateListing =(req,res,next) => {
-    let {error} = listingSchema.validate(req.body);
-    
-    if(error){
-        throw new ExpressError(400,result.error);
-    }else{
+const validateListing = (req, res, next) => {
+    let { error } = listingSchema.validate(req.body);
+
+    if (error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
         next();
     }
 }
@@ -61,7 +62,7 @@ app.get("/listings/new", (req, res) => {
 });
 
 // CREATE
-app.post("/listings",validateListing, wrapAsync(async(req, res) => {
+app.post("/listings", validateListing, wrapAsync(async (req, res) => {
 
     const newListing = new Listing(req.body.listing);
     if (!req.body.listing.image || req.body.listing.image === "") {
@@ -74,19 +75,25 @@ app.post("/listings",validateListing, wrapAsync(async(req, res) => {
 }));
 
 // SHOW
-app.get("/listings/:id", validateListing, wrapAsync(async (req, res) => {
+app.get("/listings/:id", wrapAsync(async (req, res) => {
     const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+        throw new ExpressError(404, "Listing not found");
+    }
     res.render("listings/show", { listing });
 }));
 
 // EDIT
-app.get("/listings/:id/edit",validateListing, wrapAsync(async (req, res) => {
+app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
     const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+        throw new ExpressError(404, "Listing not found");
+    }
     res.render("listings/edit", { listing });
 }));
 
 // UPDATE
-app.put("/listings/:id",validateListing, wrapAsync(async (req, res) => {
+app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
     let { id } = req.params;
     let listingData = { ...req.body.listing };
 
@@ -101,7 +108,7 @@ app.put("/listings/:id",validateListing, wrapAsync(async (req, res) => {
 }));
 
 // DELETE ✅ FIXED
-app.delete("/listings/:id", validateListing,wrapAsync(async (req, res) => {
+app.delete("/listings/:id", wrapAsync(async (req, res) => {
     await Listing.findByIdAndDelete(req.params.id);
     res.redirect("/listings");
 }));
@@ -109,13 +116,13 @@ app.delete("/listings/:id", validateListing,wrapAsync(async (req, res) => {
 
 
 
-app.all("*",(req,res,next) =>{
-    next(new ExpressError(404,"Page Not Found"));
+app.all("*", (req, res, next) => {
+    next(new ExpressError(404, "Page Not Found"));
 });
 
-app.use((err,req,res,next)=>{
-    let {statusCode =500 ,message = "something went wrong"} = err;
-    res.render("Error.ejs",{message});
+app.use((err, req, res, next) => {
+    let { statusCode = 500, message = "something went wrong" } = err;
+    res.status(statusCode).render("error.ejs", { message });
     // res.status(statusCode).send(message);
 })
 // app.listen(8080, () => {
