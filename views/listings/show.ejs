@@ -2,10 +2,10 @@
 
   <h3>Listing Details</h3>
 
-  <div class="card" style="width: 22rem;">
+  <div class="card" style="width: 22rem;" >
     <img src="<%= listing.image?.url || '/default.jpg' %>" class="card-img-top show-img">
 
-    <div class="card-body">
+    <div class="card-body" >
       <h5 class="card-title">
         <%= listing.title %>
       </h5>
@@ -30,6 +30,22 @@
 
       <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="d-inline">
         <button class="btn btn-danger">Delete</button>
+      </form>
+    </div>
+
+    <div class="col-8 offset-3 mb-3">
+      <h4>Leave Review</h4>
+      <hr>
+      <form action="/listings/<%= listing.id %>/reviews" method="POST" novalidate class="needs-validation">
+        <div class="mb-3 mt-3">
+          <label for="rating" class="form-label">Rating</label>
+          <input type="range" min="1" max="5" id="rating" name="review[rating]" class="form-range" >
+        </div>
+        <div class="mb-3 mt-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea name="review[comment]" id="comment" cols="30" rows="5" class="form-control" required></textarea>
+        </div>
+        <button class="btn btn-outline-dark">Submit</button>
       </form>
     </div>
   </div>
