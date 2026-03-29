@@ -12,6 +12,9 @@ const { listingSchema, reviewSchema } = require("./schema1.js");
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 const Review = require("./models/review.js");
 
+const listings = require("./routes/listing.js")
+const reviews = require("./routes/review.js")
+
 async function main() {
     try {
         await mongoose.connect(MONGO_URL);
@@ -41,115 +44,14 @@ app.get("/", (req, res) => {
     res.send("Hi I am root");
 });
 
-const validateListing = (req, res, next) => {
-    let { error } = listingSchema.validate(req.body);
-
-    if (error) {
-        let errMsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errMsg);
-    } else {
-        next();
-    }
-}
 
 
-const validateReview = (req, res, next) => {
-    let { error } = reviewSchema.validate(req.body);
 
-    if (error) {
-        let errMsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errMsg);
-    } else {
-        next();
-    }
-}
+app.use("/listings" ,listings);
+app.use("/listings/:id/reviews" ,reviews);
 
 
-// INDEX
-app.get("/listings", wrapAsync(async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("listings/index", { allListings });
-}));
 
-// NEW
-app.get("/listings/new", (req, res) => {
-    res.render("listings/new");
-});
-
-// CREATE
-app.post("/listings", validateListing, wrapAsync(async (req, res) => {
-
-    const newListing = new Listing(req.body.listing);
-    if (!req.body.listing.image || req.body.listing.image === "") {
-        delete newListing.image;
-    } else {
-        newListing.image = { url: req.body.listing.image };
-    }
-    await newListing.save();
-    res.redirect("/listings");
-}));
-
-// SHOW
-app.get("/listings/:id", wrapAsync(async (req, res) => {
-    const listing = await Listing.findById(req.params.id).populate("reviews");
-    if (!listing) {
-        throw new ExpressError(404, "Listing not found");
-    }
-    res.render("listings/show", { listing });
-}));
-
-// EDIT
-app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
-    const listing = await Listing.findById(req.params.id);
-    if (!listing) {
-        throw new ExpressError(404, "Listing not found");
-    }
-    res.render("listings/edit", { listing });
-}));
-
-// UPDATE
-app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    let listingData = { ...req.body.listing };
-
-    if (typeof listingData.image === "string" && listingData.image !== "") {
-        listingData.image = { url: listingData.image };
-    } else {
-        delete listingData.image;
-    }
-
-    await Listing.findByIdAndUpdate(id, listingData);
-    res.redirect(`/listings/${id}`);
-}));
-
-// DELETE ✅ FIXED
-app.delete("/listings/:id", wrapAsync(async (req, res) => {
-    await Listing.findByIdAndDelete(req.params.id);
-    res.redirect("/listings");
-}));
-
-// Reviews
-// Post Review Route
-app.post("/listings/:id/reviews", validateReview,wrapAsync(async(req,res) => {
-    let listing = await Listing.findById(req.params.id);
-    let newReview = new Review(req.body.review);
-
-    listing.reviews.push(newReview);
-
-    await newReview.save();
-    await listing.save();
-
-    res.redirect(`/listings/${listing._id}`);
-}));
-
-// Delete Review Route
-app.delete("/listings/:id/reviews/:reviewId",wrapAsync(async(req,res)=>{
-    let{id,reviewId} = req.params;
-    Listing.findByIdAndUpdate(id,{$pull:{reviews:reviewId}});
-    await Review.findByIdAndDelete(reviewId);
-
-    res.redirect(`/listings/${id}`);
-}));
 
 
 
