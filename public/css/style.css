@@ -5,7 +5,7 @@ body{
   min-height: 100vh;
 }
 
-.contaner{
+.container{
     flex: 1;
 }
 
@@ -145,5 +145,10 @@ align-items: center;
 
 /* Show Page */
 .show-img{
-    height: 30vh !important;
+    height: 70vh !important;
 }
+
+
+
+
+

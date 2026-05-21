@@ -1,6 +1,17 @@
+<style>
+  .btn-search{
+    background-color: crimson;
+    border-radius: 25px;
+  }
+
+  .searchbtn{
+    border-radius: 100px;
+  }
+</style>
+
 <nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/"><i class="fa-brands fa-airbnb"></i></a>
+    <a class="navbar-brand" href="/listings"><i class="fa-brands fa-airbnb"></i></a>
     <button 
     class="navbar-toggler" 
     type="button" 
@@ -11,10 +22,26 @@
     
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="nav-center mx-auto">
+
       <div class="navbar-nav">
-        <a class="nav-link active"  href="/"><i class="fa-regular fa-house"></i>Home</a>
-        <a class="nav-link" href="/listings"><i class="fa-brands fa-wpexplorer"></i>All Listings</i></a>
+    <form class="d-flex" role="search">
+      <input class="form-control me-2 searchbtn" type="search" placeholder="Search destinations" aria-label="Search"/>
+      <button class="btn btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+        <a class="nav-link" href="/listings"><i class="fa-brands fa-wpexplorer"></i>Explore</i></a>
         <a class="nav-link" href="/listings/new"><i class="fa-solid fa-plus"></i>Add New Listings </i></a>
+      </div>
+
+      
+      <div class="navbar-nav ms-auto">
+        <% if(!currUser) { %>
+        <a class="nav-link active"  href="/signup"><i class="fa-regular fa-house"></i>SignUp</a>
+        <a class="nav-link" href="/login"><i class="fa-brands fa-wpexplorer"></i>LogIn</i></a>
+        <% } %>
+
+        <% if(currUser) { %>
+            <a class="nav-link" href="/logout"></i>LogOut </i></a>
+        <% } %>
       </div>
     </div>
   </div>
