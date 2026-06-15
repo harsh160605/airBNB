@@ -31,6 +31,7 @@ const userRouter = require("./routes/user.js");
 
 
 const dbUrl = process.env.ATLAS_DB_URL;
+const port = process.env.PORT || 8080;
 
 
 
@@ -40,8 +41,8 @@ async function main() {
         await mongoose.connect(dbUrl);
         console.log("Connected to DB");
 
-        app.listen(8080, () => {
-            console.log("Server running on port 8080");
+        app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
         });
 
     } catch (err) {

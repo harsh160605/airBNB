@@ -1,9 +1,14 @@
+const path = require("path");
+// Load environment variables from parent folder's .env file if not in production
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").config({ path: path.join(__dirname, "../.env") });
+}
+
 const mongoose = require("mongoose");
 const initData = require("./data.js");
 const Listing = require("../models/listing.js");
-// const { init } = require("../models/listing");
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const MONGO_URL = process.env.ATLAS_DB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 
 main()
     .then(() => {
